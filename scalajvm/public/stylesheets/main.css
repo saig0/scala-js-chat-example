@@ -1,0 +1,60 @@
+/* Add some margin to the page and set a default font and colour */
+ 
+body {
+  margin: 30.0px;
+  font-family: "Georgia", serif;
+  color: #333;
+}
+ 
+/* Give headings their own font */
+ 
+h1, h2, h3, h4 {
+  font-family: "Lucida Sans Unicode", "Lucida Grande", sans-serif;
+  text-shadow: -1px 2px 6px rgba(0,0,0, 0.3);
+}
+ 
+/* Main content area */
+ 
+#content {
+  margin: 80.0px 70.0px;
+  text-align: center;
+  -moz-user-select: none;
+  -webkit-user-select: none;
+  user-select: none;
+}
+ 
+/* Header/footer boxes */
+ 
+#chat {
+  width: 300px;
+  padding: 10.0px;
+  background: #ebedf2;
+  border: 1.0px solid #333;
+  -moz-border-radius: 10.0px;
+  -webkit-border-radius: 10.0px;
+  border-radius: 10.0px;
+}
+
+#messages {
+	height: 200px;
+	overflow: auto;
+	font-style: italic;
+}
+
+#message {
+	width: 70%;
+}
+
+#login {
+  width: 300px;
+  padding: 10.0px;
+  background: #ebedf2;
+  border: 1.0px solid #333;
+  -moz-border-radius: 10.0px;
+  -webkit-border-radius: 10.0px;
+  border-radius: 10.0px;
+}
+
+#user {
+	width: 70%;
+}
