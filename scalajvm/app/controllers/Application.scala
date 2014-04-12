@@ -12,6 +12,7 @@ import shared.JoinChat
 import shared.ExitChat
 import controllers.ChatMessagesTransformer._
 import shared._
+import play.api.libs.json.OWrites
 
 object Application extends Controller {
 
@@ -22,38 +23,40 @@ object Application extends Controller {
   var channels = Set[Channel[String]]()
 
   //This shows an updated websocket example for play 2.2.0 utilizing Concurrent.broadcast vs Enumerator.imperative, which is now deprecated.
-  def chat = WebSocket.using[String] { request =>
+  def chat(name: String) = WebSocket.using[String] { request =>
 
-    println("connected")
+   	println(s"$name connected") 
+   	notifyAll(JoinChat(name))
 
-    //Concurrent.broadcast returns (Enumerator, Concurrent.Channel)
     val (out, channel) = Concurrent.broadcast[String]
-
     channels += channel
 
     val in = Iteratee.foreach[String](handleIncommingMessage) map { _ =>
-      println("disconnected")
+      println(s"$name disconnected")
+      notifyAll(ExitChat(name))
       channels -= channel
-    }
+    }    
 
     (in, out)
   }
 
-  //log the message to stdout and send response back to client
   private def handleIncommingMessage = (message: String) => {
-    println(message)
-
+    println("received $message")
+    
     parseChatMessage(message) map (_ => notifyAll(message)) getOrElse {
       println(s"could not parse $message")
     }
-
-    //the Enumerator returned by Concurrent.broadcast subscribes to the channel and will 
-    //receive the pushed messages
   }
 
-  private def notifyAll(json: String) = channels foreach (_ push json)
+  private def notifyAll(json: String) {
+    channels foreach (_ push json)
+  }
 
-  // TODO
+  private def notifyAll(message: ChatMessages) {
+    val json = Json.stringify(Json.toJson(message))
+    notifyAll(json)
+  }
+
   private def parseChatMessage(json: String): Option[ChatMessages] = {
     val msg = Json.parse(json)
     Json.fromJson[JoinChat](msg) map (Some(_)) getOrElse {

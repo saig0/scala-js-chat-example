@@ -21,15 +21,17 @@ object ChatClient {
   private def user = jQuery("#user").value.toString
   private def message = jQuery("#message").value.toString
 
+  var ws: WebSocket = _
+  
   @JSExport
   def main(args: Array[String]) {
-    val ws = new WebSocket(s"ws://$url/chat")
-    ws.onmessage = onMessage
-
     jQuery("#chat").hide
 
     jQuery("#login-button").click(() => {
-      ws.send(transformer.asJson(JoinChat(user)))
+      ws = new WebSocket(s"ws://$url/chat/$user")
+      ws.onmessage = onMessage    
+      
+      // ws.send(transformer.asJson(JoinChat(user)))
 
       jQuery("#login").hide
       jQuery("#chat").show
