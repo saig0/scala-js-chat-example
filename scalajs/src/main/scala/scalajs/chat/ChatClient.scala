@@ -46,16 +46,16 @@ object ChatClient {
 
   private def onMessage: (MessageEvent) => Unit = (message: MessageEvent) => {
     val json = message.data.toString
-    val msg = transformer.fromJson(json) map (_ match {
+    transformer.fromJson(json) map (_ match {
       case JoinChat(user) => s"$user joined"
       case ChatMessage(user, message) => s"$user > $message"
       case ExitChat(user) => s"$user left"
-    }) getOrElse {
+    }) map { msg =>
+      val p = jQuery("<p>").html(s"$msg")
+      jQuery("#messages").append(p)
+      jQuery("#messages").scrollTop(jQuery("#messages").height)
+    } getOrElse {
       dom.console.log(s"could not parse message: $json")
     }
-
-    val p = jQuery("<p>").html(s"$msg")
-    jQuery("#messages").append(p)
-    jQuery("#messages").scrollTop(jQuery("#messages").height)
   }
 }

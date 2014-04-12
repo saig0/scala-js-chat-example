@@ -11,9 +11,9 @@ object ChatMessageTransformer {
     val json = jQuery.parseJSON(_json)
     val clazz = json.clazz.asInstanceOf[String]
     clazz match {
-      case "ChatMessage" => Some(ChatMessage(json.user.asInstanceOf[String], json.message.asInstanceOf[String]))
-      case "JoinChat" => Some(JoinChat(json.user.asInstanceOf[String]))
-      case "ExitChat" => Some(ExitChat(json.user.asInstanceOf[String]))
+      case ChatMessage.discriminator => Some(ChatMessage(json.user.asInstanceOf[String], json.message.asInstanceOf[String]))
+      case JoinChat.discriminator => Some(JoinChat(json.user.asInstanceOf[String]))
+      case ExitChat.discriminator => Some(ExitChat(json.user.asInstanceOf[String]))
       case _ => None
     }
   }
