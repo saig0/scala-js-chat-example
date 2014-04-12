@@ -29,9 +29,7 @@ object ChatClient {
 
     jQuery("#login-button").click(() => {
       ws = new WebSocket(s"ws://$url/chat/$user")
-      ws.onmessage = onMessage    
-      
-      // ws.send(transformer.asJson(JoinChat(user)))
+      ws.onmessage = onMessage
 
       jQuery("#login").hide
       jQuery("#chat").show
