@@ -11,24 +11,29 @@ import scala.scalajs.js.Any.fromFunction1
 import scala.scalajs.js.Any.fromString
 import scala.scalajs.js.Any.stringOps
 import shared._
-import scalajs.chat.{ ChatMessageTransformer => transformer }
+import scalajs.chat.{ ChatMessagesTransformer => transformer }
+import org.scalajs.spickling._
+import org.scalajs.spickling.jsany._
+import java.util.NoSuchElementException
 
 @JSExport
 object ChatClient {
 
-  lazy val url = dom.location.host
+  lazy val host = dom.location.host
+
+  private def chatUrl = s"ws://$host/chat/$user"
 
   private def user = jQuery("#user").value.toString
   private def message = jQuery("#message").value.toString
 
   var ws: WebSocket = _
-  
+
   @JSExport
   def main(args: Array[String]) {
     jQuery("#chat").hide
 
     jQuery("#login-button").click(() => {
-      ws = new WebSocket(s"ws://$url/chat/$user")
+      ws = new WebSocket(chatUrl)
       ws.onmessage = onMessage
 
       jQuery("#login").hide
@@ -37,7 +42,8 @@ object ChatClient {
     })
 
     jQuery("#message-button").click(() => {
-      ws.send(transformer.asJson(ChatMessage(user, message)))
+      val json = transformer.asJson(ChatMessage(user, message))
+      ws.send(json)
       jQuery("#message").value("")
       jQuery("#message").focus
     })

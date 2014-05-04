@@ -30,7 +30,12 @@ object ApplicationBuild extends Build with UniversalKeys {
       compile in Compile <<= (compile in Compile) dependsOn (preoptimizeJS in (scalajs, Compile)),
       dist <<= dist dependsOn (optimizeJS in (scalajs, Compile)),
       sharedScalaSetting,
-      libraryDependencies ++= Seq(),
+	  resolvers += Resolver.url("scala-js-releases",
+			url("http://dl.bintray.com/content/scala-js/scala-js-releases"))(
+			Resolver.ivyStylePatterns),
+      libraryDependencies ++= Seq(
+		"org.scalajs" %% "scalajs-pickling-play-json" % "0.2"
+	  ),
       EclipseKeys.skipParents in ThisBuild := false
     ) ++ (
       // ask scalajs project to put its outputs in scalajsOutputDir
@@ -48,7 +53,8 @@ object ApplicationBuild extends Build with UniversalKeys {
       libraryDependencies ++= Seq(
         "org.scala-lang.modules.scalajs" %% "scalajs-jasmine-test-framework" % scalaJSVersion % "test",
         "org.scala-lang.modules.scalajs" %% "scalajs-dom" % "0.3-SNAPSHOT",
-		"org.scala-lang.modules.scalajs" %% "scalajs-jquery" % "0.3"
+		"org.scala-lang.modules.scalajs" %% "scalajs-jquery" % "0.3",
+		"org.scalajs" %% "scalajs-pickling" % "0.2"
       )
     )
 

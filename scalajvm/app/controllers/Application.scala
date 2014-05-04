@@ -10,7 +10,7 @@ import play.api.libs.json.JsSuccess
 import play.api.libs.json.JsValue
 import shared.JoinChat
 import shared.ExitChat
-import controllers.ChatMessagesTransformer._
+import controllers.{ ChatMessagesTransformer => transformer }
 import shared._
 import play.api.libs.json.OWrites
 
@@ -41,9 +41,9 @@ object Application extends Controller {
   }
 
   private def handleIncommingMessage = (message: String) => {
-    println("received $message")
+    println(s"received $message")
     
-    parseChatMessage(message) map (_ => notifyAll(message)) getOrElse {
+    transformer.fromJson(message) map (_ => notifyAll(message)) getOrElse {
       println(s"could not parse $message")
     }
   }
@@ -53,18 +53,8 @@ object Application extends Controller {
   }
 
   private def notifyAll(message: ChatMessages) {
-    val json = Json.stringify(Json.toJson(message))
-    notifyAll(json)
-  }
-
-  private def parseChatMessage(json: String): Option[ChatMessages] = {
-    val msg = Json.parse(json)
-    Json.fromJson[JoinChat](msg) map (Some(_)) getOrElse {
-      Json.fromJson[ChatMessage](msg) map (Some(_)) getOrElse {
-        Json.fromJson[ExitChat](msg) map (Some(_)) getOrElse
-          None
-      }
-    }
+    val json = transformer.asJson(message)
+    channels foreach (_ push json)
   }
 
 }

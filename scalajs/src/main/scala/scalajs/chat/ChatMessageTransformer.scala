@@ -4,26 +4,36 @@ import shared._
 import org.scalajs.jquery._
 import scala.scalajs.js
 import scala.scalajs.js.JSON
+import org.scalajs.dom
+import org.scalajs.spickling._
+import org.scalajs.spickling.jsany._
 
-object ChatMessageTransformer {
+object ChatMessagesTransformer {
+
+  PicklerRegistry.register[ChatMessage]
+  PicklerRegistry.register[JoinChat]
+  PicklerRegistry.register[ExitChat]
 
   def fromJson(_json: String): Option[ChatMessages] = {
-    val json = jQuery.parseJSON(_json)
-    if (json.discriminator != null) {
-      json.discriminator.asInstanceOf[String] match {
-        case ChatMessage.discriminator => Some(ChatMessage(json.user.asInstanceOf[String], json.message.asInstanceOf[String]))
-        case JoinChat.discriminator => Some(JoinChat(json.user.asInstanceOf[String]))
-        case ExitChat.discriminator => Some(ExitChat(json.user.asInstanceOf[String]))
-        case _ => None
+    try {
+      val json = jQuery.parseJSON(_json).asInstanceOf[js.Any]
+      val message = PicklerRegistry.unpickle(json)
+      Some(message.asInstanceOf[ChatMessages])
+    } catch {
+      case _: Throwable => {
+        None
       }
-    } else {
-      None
     }
   }
 
-  def asJson(message: ChatMessages): String = {
-    val jsObj = message.asInstanceOf[js.Any]
-    val json = JSON.stringify(jsObj)
-    json.replaceAllLiterally("$1", "")
+  def asJson(message: ChatMessages): js.Any = {
+    try {
+      val jsObj = PicklerRegistry.pickle(message)
+      val json = JSON.stringify(jsObj)
+      json.replaceAllLiterally("$1", "")
+    } catch {
+      case _: Throwable =>
+        dom.console.log(s"could not serialize message: $message")
+    }
   }
 }
